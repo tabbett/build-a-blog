@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <link type="text/css" rel="stylesheet" href="styles.css"/>
+    <title>/Build a blog/</title>
+    </head>
+
+    <body>
+        <h1>Build a blog</h1>
+    </body>
+
+    <form method = "post">
+        <label>
+            <div>title</div>
+            <input type="text" name="title" value = "{{title}}">
+        </label>
+        <label>
+            <div>blog</div>
+            <textarea name = "blog">{{blog}}</textarea>
+        </label>
+
+        <div class = "error">{{error}}</div>
+
+        <input type="submit">
+    </form>
+
+    <hr>
+
+    {% for blog in blogs %}        
+    <div class = "blog">
+    <div class = "blog-title">{{blog.title}}</div>
+    <div class = "blog-body">{{blog.blog}}</div>
+    </div>
+    {% endfor %}
+
+</html>

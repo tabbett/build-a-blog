@@ -20,7 +20,7 @@ import jinja2
 
 from google.appengine.ext import db
 
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                 autoescape = True)
 
@@ -35,10 +35,32 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+class Blog(db.Model):
+    title=db.StringProperty(required = True)
+    blog=db.TextProperty(required=True)
+    created=db.DateTimeProperty(auto_now_add=True)
 
 class MainPage(Handler):
+    def render_base(self, title = "", blog = "",error = ""):
+        blogs = db.GqlQuery("Select * from Blog Order By created DESC")        
+
+        self.render("base.html", title=title, blog=blog, error=error, blogs=blogs)
+    
     def get(self):
-        self.render("front.html")
+        self.render_base()
+
+    def post(self): 
+        title = self.request.get("title")
+        blog = self.request.get("blog")
+
+        if title and blog:
+            a = Blog(title=title, blog=blog)
+            a.put()
+
+            self.redirect("/")
+        else:
+            error = "You need to add both a title and blog"
+            self.render_base(title, blog, error)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage)
