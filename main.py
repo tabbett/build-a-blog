@@ -20,9 +20,8 @@ import jinja2
 
 from google.appengine.ext import db
 
-template_dir = os.path.join(os.path.dirname(__file__), 'template')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-                                autoescape = True)
+template_dir = os.path.join(os.path.dirname(__file__), "template")
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -41,13 +40,21 @@ class Blog(db.Model):
     created=db.DateTimeProperty(auto_now_add=True)
 
 class MainPage(Handler):
-    def render_base(self, title = "", blog = "",error = ""):
-        blogs = db.GqlQuery("Select * from Blog Order By created DESC")        
+    def render_main(self, title = "", blog = "",error = ""):
+        blogs = db.GqlQuery("Select * from Blog Order By created DESC Limit 5")  
 
-        self.render("base.html", title=title, blog=blog, error=error, blogs=blogs)
+        self.render("mainblog.html", error=error, blogs=blogs)
     
     def get(self):
-        self.render_base()
+        self.render_main()
+
+   
+class NewPost(Handler):
+    def render_newpost_form(self, title="", blog = "", error = ""):
+        self.render("newpost.html", title=title, blog=blog, error=error)
+
+    def get(self):
+        self.render_newpost_form()
 
     def post(self): 
         title = self.request.get("title")
@@ -60,8 +67,10 @@ class MainPage(Handler):
             self.redirect("/")
         else:
             error = "You need to add both a title and blog"
-            self.render_base(title, blog, error)
+            self.render_newpost_form(title, blog, error)
+
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
+    ('/newpost', NewPost)
 ], debug=True)
