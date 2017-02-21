@@ -63,14 +63,22 @@ class NewPost(Handler):
         if title and blog:
             a = Blog(title=title, blog=blog)
             a.put()
+            blog_id=a.key().id()
 
-            self.redirect("/")
+            self.redirect("/blog/"+str(blog_id))
         else:
             error = "You need to add both a title and blog"
             self.render_newpost_form(title, blog, error)
 
+       
+
+class ViewPostHandler(Handler):
+    def get(self, id):
+        blog_post = Blog.get_by_id(int(id))
+        self.render("singlepost.html", title=blog_post.title, blog=blog_post.blog)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/newpost', NewPost)
+    ('/newpost', NewPost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
