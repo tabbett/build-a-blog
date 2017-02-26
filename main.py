@@ -40,7 +40,7 @@ class Blog(db.Model):
     created=db.DateTimeProperty(auto_now_add=True)
 
 class MainPage(Handler):
-    def render_main(self, title = "", blog = "",error = ""):
+    def render_main(self, error = ""):
         blogs = db.GqlQuery("Select * from Blog Order By created DESC Limit 5")  
 
         self.render("mainblog.html", error=error, blogs=blogs)
